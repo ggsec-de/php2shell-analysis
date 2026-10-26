@@ -304,7 +304,7 @@ The allocations landed in other chunks.
 
 The missing ingredient was geometry taken from the oracle, then re-measured locally.
 
-A value that fills the chunk to page `0x190` leaves only 111 free pages. From those pages, 900 nested POST arrays were carved out as real `zend_array` structures whose `pDestructor` is `zval_ptr_dtor`.
+A value sized to fill the chunk leaves a small, computable number of free pages at its tail. From those pages, nested POST arrays were carved out as real `zend_array` structures whose `pDestructor` is `zval_ptr_dtor`. The page index, the free-page count and the array count are build-specific and stay in the private lab; what matters here is that the technique is a size computation, not a guess.
 
 Result:
 

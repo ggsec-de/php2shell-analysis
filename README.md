@@ -3,7 +3,8 @@
 What is published here is the **measurement half** of a reproduction of CVE-2026-109618 / CVE-2026-109619:
 which PHP builds are affected by this chain class, how the fix actually behaves, and why the chain does not
 transfer to PHP-FPM. The working exploit (the four request stages, their calibration probes and the
-runbook) is withheld in a private lab — see [NOTICE.md](NOTICE.md) for what that means and why.
+runbook) is withheld in a private lab under an embargo that runs **until at least 25 November 2026** — see
+[NOTICE.md](NOTICE.md) for what that means and why.
 
 The research narrative, including the wrong turns, is in [HISTORY.md](HISTORY.md).
 

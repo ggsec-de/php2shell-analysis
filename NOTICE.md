@@ -58,6 +58,16 @@ Three of the documents here exist because a claim without a measurement is a gue
 - `docs/VERSION_MATRIX.md` — six images, one question: does the arming signature appear.
 - `docs/FPM.md` — why the chain does not transfer to PHP-FPM, measured rather than assumed.
 
+## Embargo
+
+The exploit code, its calibration probes and the runbook are held back **until at least 25 November
+2026**. This repository publishes the analysis only: enough to decide whether a build is affected, to
+recognise the traffic, and to check that a patch is in place.
+
+If the date moves, this file and `README.md` change in the same commit, so the date published here is
+always the current plan rather than a historical marker. Nothing in this repository is a promise that the
+code will be released on that date; it is a statement of when it will *not* be.
+
 ## Licence
 
 **MIT**, copyright 2026 GG ADVANCED IT Security UG. The full text is in [LICENSE](LICENSE).

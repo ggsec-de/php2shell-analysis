@@ -13,7 +13,7 @@
 #
 # With --single the prefork configuration is overridden to one worker, which removes the need to pin
 # a child. Without it the image's own prefork config applies (StartServers 5, MaxRequestWorkers 150)
-# and the chain has to hold 149 connections first - `poc/chain.sh --workers 150` does that.
+# and the chain has to hold 149 connections first - the private chain runner can be told to do that.
 #
 # usage:
 #   ./lab/start_target.sh              # official MPM (150 workers)
