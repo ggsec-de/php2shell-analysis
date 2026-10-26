@@ -116,10 +116,17 @@ reassuring for anyone using these notes on their own hardware:
 Same bodies, same page, same counts. The allocation geometry that the arming step depends on belongs to
 the session handler, not to the instruction set, and the fix behaves the same way on both.
 
-What does not transfer is anything the *build* decides: symbol offsets (they come from each image's own
-symbol table) and the heap-layout constants the execution stage needs. That split - shape portable,
-constants per build - is the useful takeaway, and it is the same split the version matrix shows between
-architectures as between patch levels.
+What the *build* decides, and therefore has to be read from it rather than assumed:
+
+- **symbol offsets** - resolvable from each image's own symbol table;
+- **where the main allocator chunk sits** relative to the chunk the disclosure reads. On arm64 that
+  distance measured 0x400000 on every fresh container, which makes it look like a constant. On x86-64 the
+  same measurement came back as 0x200000, 0x600000 and 0x800000 in three containers, and the fixed value
+  produced one success in three attempts. The window does contain the answer - a second cluster of chunk
+  pointers - so the distance can be derived per run instead of assumed.
+
+That is the takeaway worth carrying to other builds: a distance that is stable on one target is not a
+constant, and a PoC that hardcodes it will look broken exactly where it is most needed.
 
 *Method note, because it cost time here too:* a pointer test written for one architecture can silently
 reject valid addresses on another. Ours did, and it made a perfectly good 800 KiB window look empty.
