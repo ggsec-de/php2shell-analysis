@@ -84,6 +84,23 @@ that: with the gate removed and the parser fully engaged, the granularity is sti
 `php-fixed:8.5.12` and `php:8.3.36` as clean negatives (0/3 leak, 0/3 fire) and 8.3.x as structurally
 blocked for this chain class. The signature table above agrees, by a different instrument.
 
+## Porting status for 8.5.11
+
+The signature says affected, so the chain should exist there. Porting our own tooling to that build was
+attempted and is not finished. What was measured:
+
+- the arming step reproduces exactly: same `4096` refusal, and the stale session identifier survives into
+  the next request as a readable string, just as on 8.4.26;
+- the disclosure step does not transfer as-is. The next request dies inside session initialisation, which
+  runs *before* the request body is parsed, so the forged value is not yet in memory at the moment the
+  stale identifier is dereferenced;
+- which 2 MiB chunk that value lands in differs between the builds, and the working geometry depends on
+  that assignment, not only on the page offset.
+
+Everything that can be read off the image's symbol table (module base offsets) transfers directly. The
+geometry does not, and re-deriving it is a size-and-order search against this build rather than a constant
+edit.
+
 ## Limits
 
 - The signature is not the chain. A `4096` says the arming step is reachable; it does not by itself
