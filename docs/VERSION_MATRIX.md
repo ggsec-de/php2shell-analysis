@@ -101,6 +101,29 @@ Everything that can be read off the image's symbol table (module base offsets) t
 geometry does not, and re-deriving it is a size-and-order search against this build rather than a constant
 edit.
 
+## Second architecture: the shape is a property of PHP, not of the CPU
+
+The arm64 measurements above were repeated on x86-64 (`php:8.4.26-apache`, amd64, stock ini, one Apache
+child) to separate "this is how PHP behaves" from "this is how our machine behaves". The result is
+reassuring for anyone using these notes on their own hardware:
+
+| step | arm64 | x86-64 |
+| --- | --- | --- |
+| arming failure | `4096` | `4096` |
+| disclosure window | 819 200 B | 819 200 B |
+| destructor copies in the window | 876 | 876 |
+
+Same bodies, same page, same counts. The allocation geometry that the arming step depends on belongs to
+the session handler, not to the instruction set, and the fix behaves the same way on both.
+
+What does not transfer is anything the *build* decides: symbol offsets (they come from each image's own
+symbol table) and the heap-layout constants the execution stage needs. That split - shape portable,
+constants per build - is the useful takeaway, and it is the same split the version matrix shows between
+architectures as between patch levels.
+
+*Method note, because it cost time here too:* a pointer test written for one architecture can silently
+reject valid addresses on another. Ours did, and it made a perfectly good 800 KiB window look empty.
+
 ## Limits
 
 - The signature is not the chain. A `4096` says the arming step is reachable; it does not by itself
