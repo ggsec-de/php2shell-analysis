@@ -1,0 +1,46 @@
+# FPM variant of the php2shell lab target.
+#
+# Same question as the Apache arm, different SAPI: can the arming request leave a dangling PS(id) in an
+# FPM worker, and can a later request read through it? The configuration mirrors lab/start_target.sh:
+# the official php.ini-production copied in, memory_limit 128M, display_errors off, upload-progress
+# cleanup on, and a docroot that prints "OK".
+#
+# The pinning difference is the point of this lab:
+#   * pm = static, pm.max_children = 1 -> the pin is a *configuration* fact, not a client-side trick.
+#     Apache prefork lets the client hold MaxRequestWorkers-1 children to pin the last one. FPM has no
+#     equivalent: nginx terminates the client connection and opens its own FastCGI connection, and the
+#     master hands every FastCGI request to any idle worker.
+#   * With pm = dynamic and several children, a missed pin looks exactly like a fixed target.
+#
+#   docker compose -p p2s-fpmchain up -d
+#   docker compose -p p2s-fpmchain down
+#
+# Calibration needs ptrace on the worker; attach from the host as root:
+#   sudo gdb -q -batch -p "$(sudo pgrep -P "$(docker inspect -f '{{.State.Pid}}' p2s-fpmchain-fpm)" | head -1)" \
+#        -x fpm_state.gdb
+services:
+  fpm:
+    image: ${PHP_IMAGE:-php:8.4.26-fpm}
+    container_name: ${LAB_NAME:-p2s-fpmchain}-fpm
+    command:
+      - /bin/sh
+      - -c
+      - |
+        cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini
+        mkdir -p /tmp/sessions && chmod 777 /tmp/sessions
+        exec php-fpm -F
+    volumes:
+      - ./www:/var/www/html:ro
+      - ./pool.conf:/usr/local/etc/php-fpm.d/zz-lab.conf:ro
+      - ./lab.ini:/usr/local/etc/php/conf.d/zz-lab.ini:ro
+
+  web:
+    image: nginx:1.27
+    container_name: ${LAB_NAME:-p2s-fpmchain}-web
+    depends_on:
+      - fpm
+    ports:
+      - "127.0.0.1:${LAB_PORT:-18140}:80"
+    volumes:
+      - ./www:/var/www/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro

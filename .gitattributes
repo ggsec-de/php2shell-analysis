@@ -1,0 +1,7 @@
+# Keep LF in the repository and on checkout, so shebangs in poc/ and lab/ keep working
+# everywhere. The scripts are plain bash and python; nothing here needs CRLF.
+* text=auto eol=lf
+
+# Container images and archives are bytes, never text
+*.gz binary
+*.tgz binary

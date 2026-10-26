@@ -1,0 +1,9 @@
+# Python bytecode from the tools (regenerated on import)
+__pycache__/
+*.pyc
+
+# Proof files land inside the target container, never here; keep any local captures out
+*.resp
+*.cookie
+/tmp/
+out/
