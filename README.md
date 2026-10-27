@@ -65,7 +65,6 @@ file included here: [docs/FPM.md](docs/FPM.md).
 | `docs/A1_CALIBRATION.md` | where the arming allocation failure has to land, and why |
 | `HISTORY.md` | five days, 56 commits, 23 iterations — including what was disproved |
 | `NOTICE.md` | provenance, what is withheld, licence |
-| `tools/unserialize-sink-check.php` | read-only triage: does request data reach `unserialize()` on a host you operate |
 
 ## Running the lab harness
 
@@ -96,30 +95,15 @@ multipart parsing as suspicious when it is paired with upload-progress activity.
 - Do not `include()` session files or other server-written state.
 - Verify engine-level and application-level exposure separately; they fail independently.
 
-## Checking a host you operate
-
-`tools/unserialize-sink-check.php` is the tool we wrote to answer "does this matter for our own site".
-It is read-only — no writes, no execution, no network — and it reports the PHP build, the plugin and
-theme inventory with versions, and every `unserialize()` call site, flagging files that also read a
-request superglobal.
-
-```bash
-php tools/unserialize-sink-check.php --path=/var/www/html
-```
-
-Exit code `0` means no file both unserializes and reads a superglobal; `2` means candidates worth reading.
-If you have no shell, set `$TOKEN` in the file, upload it next to `wp-config.php`, request it as
-`...?k=<token>` and delete it afterwards. An unedited copy refuses to run over HTTP for that reason.
-
-Two limits worth stating: the pairing test is per-file, so it misses a path where one file reads the
-request and another file unserializes the value; and no `unserialize()` call site at all is the only
-result that closes the question for a given host.
-
 ## Scope
 
 Lab only. The arming requests exhaust a target's memory limit and crash a worker, so they are visible in
 logs and destructive by construction. Nothing here is a licence to point anything at a system you do not
 own or have written permission to test.
+
+Applying this to a host of your own needs one more question answered: does any of its code pass request
+data to `unserialize()`? That is a general question about PHP, not about this bug class, so the triage tool
+we wrote for it lives on its own: [ggsec-de/php-unserialize-sink-check](https://github.com/ggsec-de/php-unserialize-sink-check).
 
 ## Licence
 
